@@ -1,6 +1,5 @@
 package com.springboot_practice.springboot_practice.Controller;
 
-
 import com.springboot_practice.springboot_practice.DTO.QuestionDto;
 import com.springboot_practice.springboot_practice.DTO.UserDto;
 import com.springboot_practice.springboot_practice.Model.User;
@@ -21,8 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping({"/user"})
-public class UserController {
+@RequestMapping({"/userLoginRegister/"})
+public class UserLoginRegister {
+
 
     @Autowired
     private UserService userService;
@@ -53,13 +53,7 @@ public class UserController {
     }
 
 
-    // endpoint for submit the answer of question  and get result
 
-    @PostMapping({"/submit-answers"})
-    public ResponseEntity<Result> submitAnswers(@RequestBody List<Response> responses) {
-        Result result = this.userService.calculateResult(responses);
-        return ResponseEntity.ok(result);
-    }
 
 
 
