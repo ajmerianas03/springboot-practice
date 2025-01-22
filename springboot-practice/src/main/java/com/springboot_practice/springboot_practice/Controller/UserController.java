@@ -24,33 +24,17 @@ import java.util.Map;
 @RequestMapping({"/user"})
 public class UserController {
 
+
+
+
+
+
+
     @Autowired
     private UserService userService;
 
-    @PostMapping({"/register"})
-    public ResponseEntity<Object> registerUser(@RequestBody @Valid User user) {
-        try {
-            if (user.getUsername().contains(" ")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid username", "message", "Username should not contain spaces"));
-            } else {
-                UserDto registeredUser = this.userService.registerUser(user.getUsername(), user.getPassword());
-                return ResponseEntity.ok(registeredUser);
-            }
-        } catch (ResponseStatusException var4) {
-            ResponseStatusException ex = var4;
-            HttpStatus status = (HttpStatus)ex.getStatusCode();
-            return ResponseEntity.status(status).body(Map.of("error", status.getReasonPhrase(), "message", ex.getMessage()));
-        }
-    }
 
 
-    // endpoint for login and geting  question
-
-    @PostMapping({"/login"})
-    public ResponseEntity<List<QuestionDto>> loginAndGetQuestions(@RequestBody @Valid User user) {
-        List<QuestionDto> questions = this.userService.loginAndGetQuestions(user.getUsername(), user.getPassword());
-        return ResponseEntity.ok(questions);
-    }
 
 
     // endpoint for submit the answer of question  and get result

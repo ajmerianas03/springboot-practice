@@ -1,5 +1,6 @@
 package com.springboot_practice.springboot_practice.ServiceImpl;
 
+import com.springboot_practice.springboot_practice.Exception.QuestionNotFoundException;
 import com.springboot_practice.springboot_practice.Model.Question;
 import com.springboot_practice.springboot_practice.Model.User;
 import com.springboot_practice.springboot_practice.Repositorie.QuestionRepository;
@@ -32,31 +33,32 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper;
 
     @Override
-    public List<QuestionDto> loginAndGetQuestions(String username, String password) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+    public Result calculateResult(List<Response> responses) {
+        int correct = 0;
+        int wrong = 0;
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+        for (Response response : responses) {
+            Question question = questionRepository.findById(response.getqId())
+                    .orElseThrow(() -> new QuestionNotFoundException("The Question ID " + response.getqId() + " does not exist."));
 
-            if (user.getPassword().equals(password)) {
-
-                List<Question> questions = questionRepository.findTop5ByDepartmentId(user.getDepartment().getId());
-
-                List<QuestionDto> questionDtos = new ArrayList<>();
-
-                for (Question q : questions) {
-                    QuestionDto questionDto = modelMapper.map(q, QuestionDto.class);
-                    questionDtos.add(questionDto);
-                }
-
-                return questionDtos;
+            if (question.getCorrectOption().equalsIgnoreCase(response.getUseranswer())) {
+                correct++;
+            } else {
+                wrong++;
             }
         }
 
-        throw new RuntimeException("Invalid credentials");
+        int total = correct + wrong;
+        double percentage = 0;
+        if (total > 0) {
+            percentage = ((double) correct / total) * 100;
+        }
+
+        return new Result(correct, wrong, percentage);
     }
 
-    @Override
+
+    /*@Override
     public Result calculateResult(List<Response> responses) {
         int correct = 0;
         int wrong = 0;
@@ -79,20 +81,8 @@ public class UserServiceImpl implements UserService {
         }
 
         return new Result(correct, wrong, percentage);
-    }
+    }*/
 
-    @Override
-    public UserDto registerUser(String username, String password) {
-        if (userRepository.existsByUsername(username)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with username '" + username + "' already exists.");
-        }
 
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
 
-        User savedUser = userRepository.save(newUser);
-
-        return modelMapper.map(savedUser, UserDto.class); // Use ModelMapper to convert User to UserDto
-    }
 }

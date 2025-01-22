@@ -5,6 +5,7 @@ import com.springboot_practice.springboot_practice.DTO.UserDto;
 import com.springboot_practice.springboot_practice.Model.User;
 import com.springboot_practice.springboot_practice.Response;
 import com.springboot_practice.springboot_practice.Result;
+import com.springboot_practice.springboot_practice.Service.UserLoginService;
 import com.springboot_practice.springboot_practice.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,41 +24,35 @@ import java.util.Map;
 @RequestMapping({"/userLoginRegister/"})
 public class UserLoginRegister {
 
-
     @Autowired
-    private UserService userService;
+    private UserLoginService userService;
 
-    @PostMapping({"/register"})
-    public ResponseEntity<Object> registerUser(@RequestBody @Valid User user) {
+
+    @PostMapping("/register")
+    public User register(@RequestBody User user) {
+        return userService.register(user);
+
+    }
+
+   /* @PostMapping("/login")
+    public String login(@RequestBody User user) {
+
+        return userService.verify(user);
+    }*/
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody User user) {
         try {
-            if (user.getUsername().contains(" ")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid username", "message", "Username should not contain spaces"));
-            } else {
-                UserDto registeredUser = this.userService.registerUser(user.getUsername(), user.getPassword());
-                return ResponseEntity.ok(registeredUser);
-            }
-        } catch (ResponseStatusException var4) {
-            ResponseStatusException ex = var4;
-            HttpStatus status = (HttpStatus)ex.getStatusCode();
-            return ResponseEntity.status(status).body(Map.of("error", status.getReasonPhrase(), "message", ex.getMessage()));
+
+            Map<String, Object> response = userService.verify(user);
+
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Login failed", "message", e.getMessage()));
         }
     }
-
-
-    // endpoint for login and geting  question
-
-    @PostMapping({"/login"})
-    public ResponseEntity<List<QuestionDto>> loginAndGetQuestions(@RequestBody @Valid User user) {
-        List<QuestionDto> questions = this.userService.loginAndGetQuestions(user.getUsername(), user.getPassword());
-        return ResponseEntity.ok(questions);
-    }
-
-
-
-
-
-
-
-
-
 }
